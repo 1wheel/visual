@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<!--
+    This is a demonstration app that shows how to use the Echo Nest API
+    from within a Spotify APP.
+-->
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Playlister</title>
+    <link rel="stylesheet" href="sp://import/css/adam.css">
+    <link rel="stylesheet" href="styles.css">
+	
+	<body onload="init();">
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+	<script type="text/javascript" src="js/echonestsync.js"></script>
+	<script type="text/javascript" src="js/FetchTrackAndAnalysisData.js"></script>
+	<script type="text/javascript" src="js/processing.js"></script>
+</head>
+
+<body>
+
+<script type="text/processing" data-processing-target="beats"> 
+
+void setup() {
+  size(500,500);
+  background(0);
+	frameRate(60);
+  for (var i = 0; i < numbers.length; i++) {
+    var c = map(numbers[i], min(numbers), max(numbers), 0, 255);
+    fill(255, c, 0);
+    var w = map(numbers[i], 0, max(numbers), 0, width - 50);
+    rect(0, i * 25, w, 20);
+  }
+}
+ 
+void draw() {
+  if (beatA)
+  {
+	background(30);
+	var time = sp.trackPlayer.getNowPlayingTrack().position;
+	var rbeat = quickBeat(beatA);
+	var dif = rbeat - time;
+	text(rbeat,10,10);
+	text(time,10,30);
+	text(dif,10,40);
+	text(hop,10,60);
+	text(time - hop,10,70);
+	
+	if (isNewBeat(beatA)) {
+		ellipse(250,250,200,200);
+		hop = time;
+		}
+		olddif = dif;
+		
+	}
+}
+</script>
+<canvas id="beats"></canvas>
+
+	<h2 id='trackinfo'> PLAY SOMETHING </h2>
+    
+    <button id="one" onclick="startStats()"> start stats </button>
+	<button id="two" onclick="sayhi()"> say hi </button>
+	<table border="1">
+ <tr>
+ <td>Position</td>
+ <td>Segment Number</td>
+ <td>Segment Time</td>
+ <td>Bar</td>
+ <td>Beat</td>
+ <td>Segment Duration</td>
+ <td>Segment Conf</td>
+ <td>Loud</td>
+ <td>Pitch</td>
+ <td>Timber</td>
+ </tr>
+ <tr>
+ <td id = "pos">Position</td>
+ <td id = "seg-num">Segment Number</td>
+ <td id = "seg-time">Segment Time</td>
+ <td id = "bar">Bar</td>
+ <td id = "beat">Beat</td>
+ <td id = "seg-dur">Segment Duration</td>
+ <td id = "seg-conf">Segment Conf</td>
+ <td id = "seg-loud">Loud</td>
+ <td id = "seg-pitch">Pitch</td>
+ <td id = "seg-timbre">Timber</td>
+ </tr>
+ </table>
+	<h2 id='pos'>  </h2>
+	<div id="info"> </div>
+	<script src="processing.js"></script>
+<script type="text/processing" data-processing-target="mycanvas"> 
+void setup() {
+  size(500,500);
+  background(0);
+ 
+  for (var i = 0; i < numbers.length; i++) {
+    var c = map(numbers[i], min(numbers), max(numbers), 0, 255);
+    fill(255, c, 0);
+    var w = map(numbers[i], 0, max(numbers), 0, width - 50);
+    rect(0, i * 25, w, 20);
+  }
+}
+ 
+void draw() {
+  if (pitchsGLOBAL)
+  {
+  background(51);
+	var nums = pitchsGLOBAL;
+	  for (var i = 0; i < nums.length;i++) {
+		var c = map(nums[i], 0, 1, 0, 255);
+		fill(255, c, 0);
+		var w = map(nums[i], 0, 1, 0, width - 50)
+		rect(0, i*25, w, 20);
+		}
+	}
+}
+</script>
+<canvas id="mycanvas"></canvas>
+</body>
+
+<script type="text/javascript">
+
+var numbers = [13.4, 14.5, 15.0, 23.2, 30.9, 31.3, 32.9, 35.1, 34.3];
+var sp = getSpotifyApi(1);
+var models = sp.require("sp://import/scripts/api/models");
+var player = models.player;
+jQuery.ajaxSettings.traditional = true;  
+var cur_analysis;
+var lastTrack = null;
+var log = " ";
+var seg;
+var pitchsGLOBAL;
+var beatA;
+var beat;
+var oldbeat;
+var hop = 0;
+var olddif;
+var beatR = 1;
+var test = 0;
+
+function showz(){};
+var showz_null = true;
+
+function quickBeat(beatAs){
+	if (beatAs) {
+		
+            var l = beatAs.length;
+			var time = sp.trackPlayer.getNowPlayingTrack().position;
+            for (var i = beatR; i < l; i++) {
+                var q = beatAs[i];
+				var ql = beatAs[i-1]
+                if (ql.start <=time && time < q.start ) {
+                    beatR = i;
+                    return q.start;
+                }
+            }
+			beatR = 1;
+        }
+		info("beatAs not present");
+        return null;
+}
+
+
+function isNewBeat(beatAs) {
+	var newbeat = quickBeat(beatAs);
+	//info(newbeat);
+	if (newbeat != oldbeat){
+		oldbeat = newbeat;
+		return true;
+	}
+	return false;
+}
+	
+
+function init() {
+	newsong();
+    player.observe(models.EVENT.CHANGE, function (e) {
+
+        // Only update the page if the track changed
+        if (e.data.curtrack == true) {
+            newsong();
+        }
+    });
+}
+
+function startStats() {
+	showz = showSegmentInfo();
+	setInterval ( "showz()", 50 );
+	info(test);
+}
+
+function newsong() {
+	var playerTrackInfo = player.track;
+	var track = playerTrackInfo.data;
+	document.getElementById("trackinfo").innerHTML = (track.name + " " + track.album.name );
+	//fetchSongInfo(track);
+}
+
+function sayhi() {
+	var playerTrackInfo = player.track;
+	var track = playerTrackInfo.data;
+	document.getElementById("boobs").innerHTML = track.album.artist.name;
+	var playerTrackInfo = player.track;
+	var track = playerTrackInfo.data;
+	time = sp.trackPlayer.getNowPlayingTrack().position;
+		info(time );
+}
+
+function makePlaylistFromNowPlaying() {
+    var track = models.player.track;
+    if (track == null) {
+        info("Start playing something and I'll make a playlist of good songs based on that song");
+    } else {
+	if (null) {
+        fetchPlaylist(models.player.track.artists[0], 25);
+		}
+    }
+}
+
+function createPlayButton(song) {
+    var span = $("<span>");
+    var button = $("<img src='play.png'>");
+    var song_name = ' ' + song.title + " by " + song.artist_name;
+
+    button.click(function() {
+        var uri = getSpotifyID(song);
+        models.player.play(uri);
+    });
+    span.append(button);
+    span.append(song_name);
+    return span;
+}
+
+function getSpotifyID(song) {
+    var uri = song.tracks[0].foreign_id;
+    return uri.replace('spotify-WW', 'spotify');
+}
+
+function fetchPlaylist(artist, size) {
+    info('Getting playlist for ' + artist.name);
+    var artist_id = artist.uri.replace('spotify', 'spotify-WW');
+    var url = 'http://developer.echonest.com/api/v4/playlist/basic?api_key=N6E4NIOVYMTHNDM8J&callback=?';
+
+    $.getJSON(url, { 'artist_id': artist_id, 'format':'jsonp', limit: true,
+            'results': size, 'type':'artist-radio', bucket : ['id:spotify-WW', 'tracks']}, function(data) {
+        if (checkResponse(data)) {
+            info("");
+            $('#playlist-name').text('Playlist seed: ' + artist.name);
+            $("#results").empty();
+            var curTracks = []
+            for (var i = 0; i < data.response.songs.length; i++) {
+                var li = $("<li>");
+                li.append(createPlayButton(data.response.songs[i]));
+                $("#results").append(li);
+            }
+
+            $("#save-button").unbind();
+            $("#save-button").click( function() {
+                savePlaylist(artist.name + ' playlist', data.response.songs);
+            });
+        } else {
+            info("trouble getting results");
+        }
+    });
+}
+
+function savePlaylist(title, songs) {
+    var thePlaylist = new models.Playlist(title);
+    for (var i = 0; i < songs.length; i++) {
+        thePlaylist.add(getSpotifyID(songs[i]));
+    }
+}
+
+
+function info(s) {
+	//log = log + " <br>" + s;
+    $("#info").text(s);
+	//document.getElementById("info").innerHTML = log;
+}
+
+function error(s) {
+    info(s);
+}
+
+function checkResponse(data) {
+    if (data.response) {
+        if (data.response.status.code != 0) {
+            error("Whoops... Unexpected error from server. " + data.response.status.message);
+            log(JSON.stringify(data.response));
+        } else {
+            return true;
+        }
+    } else {
+        error("Unexpected response from server");
+    }
+    return false;
+}
+
+$(document).ready(function() {
+    makePlaylistFromNowPlaying();
+});
+
+</script>
+</html>
