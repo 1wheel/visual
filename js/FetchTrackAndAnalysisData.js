@@ -1,9 +1,10 @@
+var cur_analysis;
+
 function fetchSongInfo(track) {
     info('Getting song info for ' + track.name + ' by '  + track.artists[0].name);
     var url = 'http://developer.echonest.com/api/v4/track/profile?api_key=N6E4NIOVYMTHNDM8J&callback=?';
-	info(track.uri);
     var track_id = fromSpotify(track.uri);
-	//track_id = track.uri;
+
     $.getJSON(url, { id: track_id, format:'jsonp', bucket : 'audio_summary'}, function(data) {
         if (checkResponse(data)) {
             info("");
@@ -24,8 +25,6 @@ function fetchAnalysis(track) {
         if ('meta' in data) {
             info("Got the analysis");
             cur_analysis = data;
-			beatA = cur_analysis.beats;
-			test = 1;
         } else {
             info("trouble getting analysis");
         }

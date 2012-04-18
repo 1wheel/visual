@@ -1,21 +1,24 @@
+function callEchoSynce() {
+	info("trouble getting results");
+	getCurrentSeg = showSegmentInfo();
+	updateSeg();
+}
+
+function updateSeg() {
+	document.getElementById('reset-able').innerHTML = $.toJSON(getCurrentSeg());
+	setTimeout("updateSeg()",50);
+}
+
 function showSegmentInfo() {
-    var pos = $("#pos");
-    var snum = $("#seg-num");
-    var stime = $("#seg-time");
-    var sbar = $("#bar");
-    var sbeat = $("#beat");
-    var sdur = $("#seg-dur");
-    var sconf = $("#seg-conf");
-    var sloud = $("#seg-loud");
-    var spitch = $("#seg-pitch");
-    var stimbre = $("#seg-timbre");
     var tp = sp.trackPlayer;
 	var x = 6;
     var segIndex = 0;
     var lastSegIndex = -1;
+	var oldSeg;
 
     var beatIndex = 1;
     var barIndex = 0;
+	var lastTrack;
 	
     function findNextBeat(time) {
         if (cur_analysis) {
@@ -34,17 +37,6 @@ function showSegmentInfo() {
         return null;
     }
 
-
-    function isBeat(time) {
-        beat = findNextBeat(time);
-        if (beat) {
-            if (beat.confidence > .0 && beat.start >= time - beat.duration / 2) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     function findNextBar(time) {
         if (cur_analysis) {
             var qs = cur_analysis.bars;
@@ -60,17 +52,6 @@ function showSegmentInfo() {
             barIndex = 0;
         }
         return null;
-    }
-	
-
-    function isBar(time) {
-        var bar = findNextBar(time);
-        if (bar) {
-            if (bar.start >= time - bar.duration / 2) {
-                return true;
-            }
-        }
-        return false;
     }
 
     function findNextSegment(time) {
@@ -97,45 +78,20 @@ function showSegmentInfo() {
     function show() {
         var t = tp.getNowPlayingTrack();
         if (t) {
-            thisTrack = t.track;
+			var time = t.position/1000;
+            var thisTrack = t.track;
             if (lastTrack == null || lastTrack.uri != thisTrack.uri) {
                 lastTrack = thisTrack;
                 fetchSongInfo(thisTrack);
             }
-            var time = t.position / 1000.;
-            pos.text(t.position)
             seg = findNextSegment(time)
             if (seg) {
-                snum.text(segIndex);
-                stime.text(seg.start.toPrecision(4));
-                sdur.text(seg.duration.toPrecision(4));
-                sconf.text(seg.confidence.toPrecision(4));
-                sloud.text(seg.loudness_start.toPrecision(4));
-				pitchsGLOBAL = seg.pitches;
-                var pitches = '';
-                for (var i = 0; i < seg.pitches.length; i++) {
-                    pitches = pitches + ' ' + seg.pitches[i].toPrecision(2);
-                }
-                spitch.text(pitches);
-
-                var timbre = '';
-                for (var i = 0; i < seg.timbre.length; i++) {
-                    timbre = timbre + ' ' + seg.timbre[i].toPrecision(4);
-                }
-                stimbre.text(timbre);
+				seg.beat = findNextBeat(time);
+				seg.bar = findNextBar(time);
+				oldSeg = seg;
+				return seg;
             } 
-
-            if (isBar(time)) {
-                sbar.text('bar');
-            } else {
-                sbar.empty();
-            }
-
-            if (isBeat(time)) {
-                sbeat.text('beat');
-            } else {
-                sbeat.empty();
-            }
+			return oldSeg;
         }
     }
     return show;
