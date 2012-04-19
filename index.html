@@ -4,20 +4,26 @@
 		<title>Playlister</title>
 		<link rel="stylesheet" href="sp://import/css/adam.css">
 		<link rel="stylesheet" href="styles.css">
+	</head>
+	
+	<body>
+		<h2 id='title'> Echo Nest / Spotify Demonstration </h2>
+		<div id="info"> </div>
+		<button id="new" onclick="changeContext('Playlist')"> Generate Playlist </button>
+		<button id="getmoreinfo" onclick="changeContext('RealTimeAnalysis')"> Real Time Analysis </button>	
+		<button id="buttonclear" onclick="changeContext('Cleared')"> Clear</button>	
+		<button id="buttonclear" onclick="changeContext('Graph')"> Graph</button>
+		<div id ="reset-able"></div>
+		<canvas id = "sketch" data-processing-sources="hello2.pde"></canvas>
+		
 		<script type="text/javascript" src="js/jquery.min.js"></script>
 		<script type="text/javascript" src="js/processing.js"></script>
 		<script type="text/javascript" src="js/jquery.json-2.3.js"></script>
 		<script type="text/javascript" src="js/echonestsync.js"></script>
 		<script type="text/javascript" src="js/FetchTrackAndAnalysisData.js"></script>
 		<script type="text/javascript" src="js/playlister.js"></script>
-	</head>
-	
-	<body>
-		<h2 id='title'> Echo Nest / Spotify Demonstration </h2>
-		<div id="info"> </div>
-		<button id="new" onclick="makePlaylistFromNowPlaying()"> Generate Playlist </button>
-		<button id="getmoreinfo" onclick="callEchoSynce()"> Analysize Track </button>	
-		<button id="buttonclear" onclick="document.getElementById('reset-able').innerHTML = &quot&quot"> Clear</button>	
-		<div id ="reset-able"></div>
+		<script type="text/javascript" src="js/graph.js"></script>
+		<script type="text/javascript" src="js/visual.js"></script>
+		
 	</body>
 </html>

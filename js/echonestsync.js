@@ -1,14 +1,3 @@
-function callEchoSynce() {
-	info("trouble getting results");
-	getCurrentSeg = showSegmentInfo();
-	updateSeg();
-}
-
-function updateSeg() {
-	document.getElementById('reset-able').innerHTML = $.toJSON(getCurrentSeg());
-	setTimeout("updateSeg()",50);
-}
-
 function showSegmentInfo() {
     var tp = sp.trackPlayer;
 	var x = 6;
@@ -33,6 +22,7 @@ function showSegmentInfo() {
                     return q;
                 }
             }
+			beatIndex = 1;
         }
         return null;
     }
@@ -49,7 +39,7 @@ function showSegmentInfo() {
                     return q;
                 }
             }
-            barIndex = 0;
+            barIndex = 1;
         }
         return null;
     }
@@ -88,6 +78,11 @@ function showSegmentInfo() {
             if (seg) {
 				seg.beat = findNextBeat(time);
 				seg.bar = findNextBar(time);
+				seg.time = time;
+				if (seg.beat)
+				{
+					seg.timeToNextBeat = seg.beat.start - seg.time;
+				}
 				oldSeg = seg;
 				return seg;
             } 

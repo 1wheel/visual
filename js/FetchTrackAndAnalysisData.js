@@ -1,5 +1,3 @@
-var cur_analysis;
-
 function fetchSongInfo(track) {
     info('Getting song info for ' + track.name + ' by '  + track.artists[0].name);
     var url = 'http://developer.echonest.com/api/v4/track/profile?api_key=N6E4NIOVYMTHNDM8J&callback=?';

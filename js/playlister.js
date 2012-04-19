@@ -1,8 +1,3 @@
-
-var sp = getSpotifyApi(1);
-var models = sp.require("sp://import/scripts/api/models");
-jQuery.ajaxSettings.traditional = true;  
-
 function makePlaylistFromNowPlaying() {
 	var track = models.player.track;
 	if (track == null) {
