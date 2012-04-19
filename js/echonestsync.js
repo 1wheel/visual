@@ -1,3 +1,5 @@
+var sp = getSpotifyApi(1);
+
 function showSegmentInfo() {
     var tp = sp.trackPlayer;
 	var x = 6;

@@ -1,14 +1,15 @@
+jQuery.ajaxSettings.traditional = true;  
+callEchoSync();
+var sp = getSpotifyApi(1);
+var models = sp.require("sp://import/scripts/api/models");
+
 var cur_analysis;
 var getCurrentSeg;
 var currentSeg;
-var sp = getSpotifyApi(1);
-var models = sp.require("sp://import/scripts/api/models");
 var context = "";
+
 var processingInstance;
 var processingInstance = Processing.getInstanceById('sketch');
-
-jQuery.ajaxSettings.traditional = true;  
-callEchoSync();
 
 function callEchoSync() {
 	info("trouble getting results");
@@ -28,8 +29,11 @@ function updateSeg() {
 		break;
 		case "Playlist":
 		break;
+		case "Graph":
+		drawLoudness();
+		break
 	}
-	setTimeout("updateSeg()",50);
+	setTimeout("updateSeg()",200);
 }
 
 function clearOutput() {
