@@ -13,3 +13,7 @@ void drawGraph(string mag, string time, int Tlength) {
 		ellipse(map(time[i], minT, maxT, 0, Ymax), map(mag[i], maxM, minM, 0, Xmax), 2, 2);
 	}
 }
+
+void mousePressed() { 
+	MousePressed = true;
+}
