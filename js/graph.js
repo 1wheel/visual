@@ -47,15 +47,16 @@
 		minM = Math.min.apply(Math, magA);
 		maxT = Math.max.apply(Math, timeA);
 		minT = Math.min.apply(Math, timeA);
-		maxB = Math.max.apply(Math, bpmA);
-		minB = Math.min.apply(Math, bpmA);
-		
+		maxB = bpmA.sum()/arrayLength + 10;
+		minB = bpmA.sum()/arrayLength - 10;
+
 		arrayLength = magA.length;
 		for (var i = 0; i < arrayLength; i++) {		
 			magAm[i] = Xmax-(magA[i]-minM)*(Ymax-0)/(maxM-minM); 
 			timeAm[i] = (timeA[i]-minT)*(Xmax-0)/(maxT-minT); 
 			bpmAm[i] = Xmax-(bpmA[i]-minB)*(Ymax-0)/(maxB-minB)
 		}
+
 		smoothCurves();
 		MousePressed = false;
 	}
